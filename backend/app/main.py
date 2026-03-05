@@ -13,7 +13,8 @@ from app.config import settings
 from app.database import init_db, close_db, async_session_factory
 from app.services.seed import seed_superadmin
 
-from app.routers import auth, tenants, products, orders, bot_configs
+from app.routers import auth, tenants, products, orders, bot_configs, bot_management
+from app.bot.manager import bot_manager
 
 
 @asynccontextmanager
@@ -32,6 +33,7 @@ async def lifespan(app: FastAPI):
     yield
 
     print(f"🛑 Encerrando {settings.app_name}...")
+    await bot_manager.stop_all()  # Desliga todos os bots em andamento
     await close_db()
     print("✅ Conexões encerradas.")
 
@@ -42,7 +44,7 @@ app = FastAPI(
         "Plataforma multi-tenant para venda de produtos digitais via Telegram. "
         "Cada tenant gerencia seu próprio bot, catálogo e pagamentos PIX."
     ),
-    version="0.2.0",
+    version="0.3.0",
     lifespan=lifespan,
     docs_url="/docs" if settings.is_development else None,
     redoc_url="/redoc" if settings.is_development else None,
@@ -62,6 +64,7 @@ app.include_router(tenants.router)
 app.include_router(products.router)
 app.include_router(orders.router)
 app.include_router(bot_configs.router)
+app.include_router(bot_management.router)
 
 
 @app.get("/health", tags=["Sistema"], summary="Health check")
