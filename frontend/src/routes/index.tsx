@@ -1,7 +1,8 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 
 import { PublicRoute, PrivateRoute, AdminRoute } from './Guards';
+import AdminLayout from '../layouts/AdminLayout';
 
 // Lazy load das páginas para melhor performance
 // FASE 5: Admin / Tenant
@@ -24,7 +25,7 @@ const WebAppCatalog = React.lazy(() => import('../pages/webapp/Catalog'));
 const AppRoutes: React.FC = () => {
     return (
         <React.Suspense fallback={
-            <div className="flex h-screen w-full items-center justify-center bg-background">
+            <div className="flex h-screen w-full items-center justify-center bg-background text-foreground">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-netflix-red border-t-transparent"></div>
             </div>
         }>
@@ -36,19 +37,22 @@ const AppRoutes: React.FC = () => {
 
                 {/* Rotas Protegidas (SaaS Panel) */}
                 <Route element={<PrivateRoute />}>
-                    {/* Dashboard Geral (Redirect baseado em Role) */}
-                    <Route path="/admin/dashboard" element={<TenantDashboard />} />
+                    {/* Todas as rotas internas usam o AdminLayout */}
+                    <Route element={<AdminLayout children={<Outlet />} />}>
+                        {/* Dashboard Geral (Redirect baseado em Role) */}
+                        <Route path="/admin/dashboard" element={<TenantDashboard />} />
 
-                    {/* Rotas Super-Admin */}
-                    <Route element={<AdminRoute />}>
-                        <Route path="/admin/super" element={<AdminDashboard />} />
-                        <Route path="/admin/tenants" element={<AdminTenants />} />
+                        {/* Rotas Super-Admin */}
+                        <Route element={<AdminRoute />}>
+                            <Route path="/admin/super" element={<AdminDashboard />} />
+                            <Route path="/admin/tenants" element={<AdminTenants />} />
+                        </Route>
+
+                        {/* Rotas Tenant (Inquilino) */}
+                        <Route path="/admin/bot" element={<TenantBotConfig />} />
+                        <Route path="/admin/catalog" element={<TenantCatalog />} />
+                        <Route path="/admin/orders" element={<TenantOrders />} />
                     </Route>
-
-                    {/* Rotas Tenant (Inquilino) */}
-                    <Route path="/admin/bot" element={<TenantBotConfig />} />
-                    <Route path="/admin/catalog" element={<TenantCatalog />} />
-                    <Route path="/admin/orders" element={<TenantOrders />} />
                 </Route>
 
                 {/* Universo Telegram Mini App (Sempre Público) */}
