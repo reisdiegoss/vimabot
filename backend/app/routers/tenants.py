@@ -328,4 +328,10 @@ async def delete_tenant(
             detail="Não é possível remover o Super-Admin.",
         )
 
+    # Para a instância do bot se ela estiver rodando no BotManager,
+    # caso contrário teremos ghost bots gerando erros ao não achar o tenant
+    from app.bot.manager import bot_manager
+    if bot_manager.is_running(str(tenant_id)):
+        await bot_manager.stop_bot(str(tenant_id))
+
     await db.delete(tenant)
