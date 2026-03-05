@@ -32,9 +32,9 @@ async def seed_superadmin(db: AsyncSession) -> None:
         return
 
     superadmin = Tenant(
-        company_name=settings.superadmin_company,
-        owner_email=settings.superadmin_email,
-        password_hash=hash_password(settings.superadmin_password),
+        company_name=settings.superadmin_company.strip(),
+        owner_email=settings.superadmin_email.strip(),
+        password_hash=hash_password(settings.superadmin_password.strip()[:70]),
         plan_type=PlanType.ENTERPRISE,
         status=TenantStatus.ACTIVE,
         is_superadmin=True,

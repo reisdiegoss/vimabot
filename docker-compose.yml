@@ -26,10 +26,10 @@ services:
   # - Coordenação do Bot Engine (aiogram)
   # ---------------------------------------------------------------------------
   backend:
+    image: vimabot-backend:latest
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: vimabot_backend
     restart: unless-stopped
     env_file:
       # Carrega todas as variáveis do arquivo .env na raiz do projeto
@@ -50,3 +50,9 @@ services:
       timeout: 10s
       retries: 3
       start_period: 15s
+    networks:
+      - network_public
+
+networks:
+  network_public:
+    external: true

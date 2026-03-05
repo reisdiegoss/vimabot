@@ -44,7 +44,7 @@ app = FastAPI(
         "Plataforma multi-tenant para venda de produtos digitais via Telegram. "
         "Cada tenant gerencia seu próprio bot, catálogo e pagamentos PIX."
     ),
-    version="0.3.0",
+    version="0.4.0",
     lifespan=lifespan,
     docs_url="/docs" if settings.is_development else None,
     redoc_url="/redoc" if settings.is_development else None,
@@ -74,6 +74,6 @@ async def health_check():
     return {
         "status": "ok",
         "app": settings.app_name,
-        "version": "0.2.0",
+        "version": "0.4.0",
         "environment": settings.app_env,
     }
