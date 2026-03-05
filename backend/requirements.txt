@@ -17,6 +17,7 @@ alembic==1.14.1
 # --- Validação e Configuração ---
 pydantic==2.10.4
 pydantic-settings==2.7.1
+email-validator==2.2.0
 python-dotenv==1.0.1
 
 # --- Autenticação e Segurança ---
