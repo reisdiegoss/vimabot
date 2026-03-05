@@ -19,6 +19,7 @@ from app.bot.handlers.start import start_router
 from app.bot.handlers.catalog import catalog_router
 from app.bot.handlers.cart import cart_router
 from app.bot.handlers.payment import payment_router
+from app.bot.middlewares.db import DbSessionMiddleware
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,11 @@ class BotManager:
             cls._instance.tasks: Dict[str, asyncio.Task] = {} # tenant_id -> Task
             cls._instance.dp = Dispatcher()
             
+            # Registra o Middleware de Sessão DB em todas as entradas (Mensagem / Callback)
+            db_middleware = DbSessionMiddleware()
+            cls._instance.dp.message.middleware(db_middleware)
+            cls._instance.dp.callback_query.middleware(db_middleware)
+
             # Registra os routers
             cls._instance.dp.include_router(start_router)
             cls._instance.dp.include_router(catalog_router)

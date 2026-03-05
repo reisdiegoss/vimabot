@@ -13,7 +13,7 @@ from app.config import settings
 from app.database import init_db, close_db, async_session_factory
 from app.services.seed import seed_superadmin
 
-from app.routers import auth, tenants, products, orders, bot_configs, bot_management
+from app.routers import auth, tenants, products, orders, bot_configs, bot_management, webhooks
 from app.bot.manager import bot_manager
 
 
@@ -65,6 +65,7 @@ app.include_router(products.router)
 app.include_router(orders.router)
 app.include_router(bot_configs.router)
 app.include_router(bot_management.router)
+app.include_router(webhooks.router)
 
 
 @app.get("/health", tags=["Sistema"], summary="Health check")
