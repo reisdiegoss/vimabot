@@ -1,0 +1,52 @@
+# =============================================================================
+# VimaBOT SaaS - Docker Compose
+# =============================================================================
+# Orquestração do serviço backend da plataforma.
+#
+# NOTA: O PostgreSQL e o Minio S3 já estão operando externamente.
+# Este arquivo orquestra apenas o backend FastAPI, que se conecta aos
+# serviços externos via variáveis de ambiente definidas no arquivo .env.
+#
+# Uso:
+#   docker compose up -d        → Sobe o backend
+#   docker compose up --build   → Reconstrói a imagem e sobe
+#   docker compose logs -f      → Acompanha os logs em tempo real
+# =============================================================================
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # Backend FastAPI - API Principal do VimaBOT SaaS
+  # ---------------------------------------------------------------------------
+  # Servidor ASGI assíncrono que gerencia:
+  # - Autenticação JWT (Super-Admin e Tenants)
+  # - CRUD de tenants, produtos, pedidos
+  # - Webhooks de pagamento (OpenPix)
+  # - Comunicação com Minio S3 (upload/download de arquivos)
+  # - Coordenação do Bot Engine (aiogram)
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: vimabot_backend
+    restart: unless-stopped
+    env_file:
+      # Carrega todas as variáveis do arquivo .env na raiz do projeto
+      - .env
+    ports:
+      # Porta da API FastAPI exposta para o host
+      - "${APP_PORT:-8000}:8000"
+    volumes:
+      # Volume de desenvolvimento: mapeia o código local para hot-reload
+      - ./backend/app:/app/app
+    # Comando de desenvolvimento com auto-reload habilitado
+    command: >
+      uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    # Healthcheck para verificar se a API está respondendo
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
